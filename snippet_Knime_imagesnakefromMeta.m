@@ -1,14 +1,19 @@
+names=transpose(kIn.Properties.VarNames(:));
+
+data1=double(kIn);
+data=int16(data1);
+
 % input from Knime should have 4 coloumns, order:
 % X, Y, image ID, field
 
-len=length(data)
+len=length(data);
 
 %temporary array to host data
 
 temparray=zeros(len,6);
 
-minx=min(data(:,1))
-miny=min(data(:,2))
+minx=min(data(:,1));
+miny=min(data(:,2));
 
 
 
@@ -21,8 +26,8 @@ end
 %set max vals for x/y to create a 2D array from X-Y for field placement,
 %500 is an arbitrary number to avoid negatives and zeros
 
-maxx=max(temparray(:,1))+500
-maxy=max(temparray(:,2))+500
+maxx=max(temparray(:,1))+500;
+maxy=max(temparray(:,2))+500;
 
 A = zeros(maxx,maxy);
 
@@ -112,33 +117,63 @@ ycoeffs=[-1 -1 -1 0 0 0 1 1 1];
      %be positive, otherwise they dont exist and write field number to array     
         
      for i = 1: length(temparray)
-               
+   disp('1')            
          for p = 1 : length(xcoeffs)      
              
              idx=temparray(i,3)+xcoeffs(p);
              idy=temparray(i,4)+ycoeffs(p);
               
-             if lenx>=idx>0 && leny>=idy>0
+             if lenx>=idx && leny>=idy && idx>0 && idy>0 
                          
              for h = 1: length(temparray)
                  if temparray(h,4)==idy && temparray(h,3)==idx
                      
-                     xwrite=data(h,4)
-                     assarray(i,p)=xwrite
+                     xwrite=data(h,4);
+                     assarray(i,p)=xwrite;
                   
                  end
          end
              end
          end
      end
-            
-    for i = 1: length(temparray)          
-            
-         xwrite=data(h,3)
-                     assarray(i,p)=xwrite        
-                 
-                     
-                 
 
-                
- 
+export=(zeros(length(temparray),13));
+
+%export data block
+
+for i = 1: length(temparray)
+
+%write original data to array
+
+export(i,1)=data(i,1);
+export(i,2)=data(i,2);
+export(i,3)=data(i,3);
+export(i,4)=data(i,4);
+
+%write partner field number to array
+
+export(i,5)=assarray(i,1);
+export(i,6)=assarray(i,2);
+export(i,7)=assarray(i,3);
+export(i,8)=assarray(i,4);
+export(i,9)=assarray(i,5);
+export(i,10)=assarray(i,6);
+export(i,11)=assarray(i,7);
+export(i,12)=assarray(i,8);
+export(i,13)=assarray(i,9);
+
+end
+
+names {5}='partner1';
+names {6}='partner2';
+names {7}='partner3';
+names {8}='partner4';
+names {9}='partner5';
+names {10}='partner6';
+names {11}='partner7';
+names {12}='partner8';
+names {13}='partner9';
+
+export1=mat2dataset(export,'VarNames',names);
+mOut=export1;
+
