@@ -1,0 +1,66 @@
+temparray=zeros(length(kIn),1);
+names=transpose(kIn.Properties.VarNames(:));
+
+
+wellarray=cellstr(kIn.Metadata_Well);
+uwells=unique(wellarray);
+
+
+
+vals=unique(kIn.PairID);
+valsnum=find(vals(:,1)>0);
+
+
+for i=1 : length(valsnum)
+    
+    subarray=find(kIn.PairID==vals(valsnum(i)));
+    
+        for k=1 : length(subarray)
+    
+        temparray(subarray(k),1)=i;
+
+        end
+ 
+        
+end
+
+valsMissing(:,1)=kIn.ImageNumber(find((kIn.PairID>0)==false));
+valsMissing(:,2)=(find((kIn.PairID>0)==false));
+
+unImg=unique(kIn.ImageNumber(find((kIn.PairID>0)==false)));
+
+counter=0;
+
+countPairID=unique(temparray);
+
+
+for k=1 : length(unImg)
+  
+cnt=unique(kIn.ObjectNumber(find(kIn.ImageNumber==unImg(k))));
+
+objarray=find(valsMissing(:,1)==unImg(k));
+objnum=valsMissing(objarray,2);
+temparray(objnum,1)=length(countPairID)+k;
+
+%counter=counter+length(cnt);
+
+end
+
+
+kIncopy=kIn;
+kIncopy.Metadata_Well=[];
+
+zerosarray=zeros(length(kIn),1);
+dataset=mat2dataset(zerosarray,'VarNames','Metadata_Well');
+
+kIncopy=[kIncopy, dataset];
+namesd=[names, {'UID_Pair'}];
+
+data=double(kIncopy);
+data=[data, temparray];
+
+dataset=mat2dataset(data,'VarNames',namesd);
+dataset.Metadata_Well=kIn.Metadata_Well;
+
+
+mOut=dataset;
