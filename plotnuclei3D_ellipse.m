@@ -15,8 +15,11 @@ for i=1:length(unique(kIn.Metadata_Field))
     subarray=zeros(length(find(kIn.Metadata_Field==j)),4);
     subarray(:,1)=find(kIn.Metadata_Field==j);
     
+    flipy=2160-kIn.Location_Center_Y(kIn.Metadata_Field==j);
+    %flip the y coordinate within the well to get a certesian value
+    
     centersXtemp =kIn.Location_Center_X(kIn.Metadata_Field==j)+kIn.WellCoordX(kIn.Metadata_Field==j);
-    centersYtemp =kIn.Location_Center_Y(kIn.Metadata_Field==j)+kIn.WellCoordY(kIn.Metadata_Field==j);
+    centersYtemp =flipy+kIn.WellCoordY(kIn.Metadata_Field==j);
     centersZtemp =kIn.Metadata_Plane(kIn.Metadata_Field==j);
     orientationtemp=kIn.AreaShape_Orientation(kIn.Metadata_Field==j);
     centersZtemp = round(centersZtemp(:,1)*(5/0.161));
@@ -57,7 +60,7 @@ set(axes1,'XTick',...
 hold on
 
 
-%COPYPASTE from here on
+%from here on the plotting
 
 
 x0=centersX;
@@ -67,6 +70,11 @@ rb=minors;
 ang=orientations;
 Nb=300;
 C=get(gca,'colororder');
+
+%here we set the color table from the z position
+%trick is, we need to assign colors from a 3 by 7 array, in case we have
+%more planes, begin from start
+
 diff=length(unique(kIn.Metadata_Plane))-length(C(:,1));
 
 unique_z=unique(centersZ);
@@ -142,7 +150,9 @@ for k=1:maxk
     y=radm*cos(the)*si+co*radn*sin(the)+ypos;
     h(k)=line(radm*cos(the)*co-si*radn*sin(the)+xpos,radm*cos(the)*si+co*radn*sin(the)+ypos,zpos);
     
+    %set the color from the z coordinate
     currZpos=find(unique_z==zpos(1,1));
         set(h(k),'color',C(currZpos,:));
 end;
+
 hold off
